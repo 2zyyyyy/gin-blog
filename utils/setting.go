@@ -15,6 +15,7 @@ type AppConfig struct {
 	DbUser     string
 	DbPassWord string
 	DbName     string
+	Other      string
 }
 
 // App 定义全局变量
@@ -40,4 +41,5 @@ func LoadData(file *ini.File) {
 	App.DbUser = file.Section("database").Key("DbUser").MustString("root")
 	App.DbPassWord = file.Section("database").Key("DbPassWord").MustString("123456")
 	App.DbName = file.Section("database").Key("DbName").MustString("gin_blog")
+	App.Other = file.Section("database").Key("Other").MustString("")
 }
