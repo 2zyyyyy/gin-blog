@@ -3,7 +3,9 @@ package routers
 import (
 	"gin-blog/api/v1"
 	"gin-blog/utils"
+	"gin-blog/utils/errmsg"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func InitRouter() {
@@ -13,6 +15,14 @@ func InitRouter() {
 	// 定义路由组
 	routerV1 := r.Group("api/v1")
 	{
+		// 测试路由
+		routerV1.GET("test", func(ctx *gin.Context) {
+			ctx.JSON(http.StatusOK, gin.H{
+				"code:": errmsg.SUCCESS,
+				"data":  nil,
+				"msg":   errmsg.GetMsg(errmsg.SUCCESS),
+			})
+		})
 		// 用户相关
 		routerV1.POST("user/add", v1.AddUser)          // 添加用户
 		routerV1.PUT("user/:id", v1.EditUser)          // 编辑用户

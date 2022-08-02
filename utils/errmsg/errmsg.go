@@ -1,9 +1,13 @@
 package errmsg
 
+// 请求结果
 const (
 	SUCCESS = 200
 	ERROR   = 500
+)
 
+// 用户相关错误
+const (
 	ErrorUsernameUsed = 1001 + iota
 	ErrorPasswordWrong
 	ErrorUserNotExist
@@ -12,9 +16,13 @@ const (
 	ErrorTokenWrong
 	ErrorTokenTypeWrong
 	ErrorUserNoRight
+)
 
-	ErrorArtNotExist = 2001
+// ErrorArtNotExist 文章相关错误
+const ErrorArtNotExist = 2001
 
+// 分类相关错误
+const (
 	ErrorCateNameUsed = 3001 + iota
 	ErrorCateNotExist
 )

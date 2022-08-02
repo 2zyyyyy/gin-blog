@@ -1,7 +1,7 @@
 package model
 
 import (
-	"gin-blog/utils/errmsg"
+	e "gin-blog/utils/errmsg"
 	"gorm.io/gorm"
 )
 
@@ -15,18 +15,28 @@ type User struct {
 // CheckUser 检查用户是否存在
 func CheckUser(name string) int {
 	var user User
-	db.Select("id").Where("username=?", name).First(&user)
+	db.Select("id").Where("username = ?", name).First(&user)
 	if user.ID > 0 {
-		return errmsg.ErrorUsernameUsed
+		return e.ErrorUsernameUsed
 	}
-	return errmsg.SUCCESS
+	return e.SUCCESS
 }
 
 // CreateUser 新增用户
 func CreateUser(data *User) int {
-	err := db.Create(data).Error
+	err := db.Create(&data).Error
 	if err != nil {
-		return errmsg.ERROR
+		return e.ERROR
 	}
-	return errmsg.SUCCESS
+	return e.SUCCESS
+}
+
+// GetUsers 查询用户列表
+func GetUsers(size, num int) []User {
+	var users []User
+	err := db.Limit(size).Offset((num - 1) * size).Find(&users).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil
+	}
+	return users
 }
