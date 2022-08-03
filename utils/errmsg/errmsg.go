@@ -1,14 +1,16 @@
 package errmsg
 
+type ResCode int64
+
 // 请求结果
 const (
-	SUCCESS = 200
-	ERROR   = 500
+	SUCCESS ResCode = 200
+	ERROR   ResCode = 500
 )
 
 // 用户相关错误
 const (
-	ErrorUsernameUsed = 1001 + iota
+	ErrorUsernameUsed ResCode = 1001 + iota
 	ErrorPasswordWrong
 	ErrorUserNotExist
 	ErrorTokenExist
@@ -19,18 +21,18 @@ const (
 )
 
 // ErrorArtNotExist 文章相关错误
-const ErrorArtNotExist = 2001
+const ErrorArtNotExist ResCode = 2001
 
 // 分类相关错误
 const (
-	ErrorCateNameUsed = 3001 + iota
+	ErrorCateNameUsed ResCode = 3001 + iota
 	ErrorCateNotExist
 )
 
-var codeMsg = map[int]string{
+var codeMsg = map[ResCode]string{
 	SUCCESS:             "OK",
-	ERROR:               "FAIL",
-	ErrorUsernameUsed:   "用户名已存在！",
+	ERROR:               "服务器繁忙",
+	ErrorUsernameUsed:   "用户名已存在",
 	ErrorPasswordWrong:  "密码错误",
 	ErrorUserNotExist:   "用户不存在",
 	ErrorTokenExist:     "TOKEN不存在,请重新登录",
@@ -46,6 +48,10 @@ var codeMsg = map[int]string{
 }
 
 // GetMsg 根据code返回对应的信息
-func GetMsg(code int) string {
-	return codeMsg[code]
+func (code ResCode) GetMsg() string {
+	msg, ok := codeMsg[code]
+	if !ok {
+		msg = codeMsg[ERROR]
+	}
+	return msg
 }
