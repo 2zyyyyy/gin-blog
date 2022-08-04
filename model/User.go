@@ -15,6 +15,14 @@ type User struct {
 	Role     int    `gorm:"type:int;DEFAULT:2" json:"role" validate:"required,gte=2" label:"角色码"`
 }
 
+// UserList 查询用户列表结构体（定义需要返回的字段）
+type UserList struct {
+	Id        uint
+	Username  string
+	Role      int
+	CreatedAt string
+}
+
 // CheckUserByName 检查用户名是否存在
 func CheckUserByName(name string) e.ResCode {
 	var user User
@@ -37,6 +45,27 @@ func CheckUserById(id int) e.ResCode {
 	return e.SUCCESS
 }
 
+// CheckUpdateUser 更新用户信息 检查用户名是否存在
+func CheckUpdateUser(id int, user User) e.ResCode {
+	dataName := user.Username
+	// 根据接口入参判断当前用户是否存在
+	db.Select("id, username").Where("id = ?", id).First(&user)
+	// case1:如果用户已删除
+	if user.ID == 0 {
+		return e.ErrorUserNotExist
+	}
+	// case2：非当前用户 无法修改已存在的用户名
+	db.Select("id, username").Where("username = ?", user.Username).First(&user)
+	if dataName == user.Username && int(user.ID) != id {
+		return e.ErrorUsernameUsed
+	}
+	// case3：如果查询结果的id和当前修改用户的id相同 则放行
+	if id == int(user.ID) {
+		return e.SUCCESS
+	}
+	return e.SUCCESS
+}
+
 // CreateUser 新增用户
 func CreateUser(data *User) e.ResCode {
 	// 对用户密码加密
@@ -49,13 +78,15 @@ func CreateUser(data *User) e.ResCode {
 }
 
 // GetUsers 查询用户列表
-func GetUsers(pageSize, pageNum int) []User {
-	var users []User
-	err := db.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&users).Error
+func GetUsers(pageSize, pageNum int) []UserList {
+	var userList []UserList
+	db.Table("user").Select("id", "username", "role", "created_at").
+		Limit(pageSize).Offset((pageNum - 1) * pageSize).Scan(&userList)
+	log.Println(userList)
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil
 	}
-	return users
+	return userList
 }
 
 // EditUser 编辑用户

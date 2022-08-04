@@ -46,10 +46,16 @@ func GetUsers(ctx *gin.Context) {
 func EditUser(ctx *gin.Context) {
 	// 获取数据
 	var data model.User
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	_ = ctx.ShouldBindJSON(&data)
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Fatalf("ctx.Param failed, err:%s\n", err)
+	}
+	err = ctx.ShouldBindJSON(&data)
+	if err != nil {
+		log.Fatalf("ShouldBindJSON failed, err:%s\n", err)
+	}
 	// 判断编辑的用户是否存在
-	code := model.CheckUserById(id)
+	code := model.CheckUpdateUser(id, data)
 	if code == e.ErrorUserNotExist {
 		// 如果传入的用户id不存在 返回错误
 		res.ResponseError(ctx, e.ErrorUserNotExist)
@@ -59,7 +65,7 @@ func EditUser(ctx *gin.Context) {
 	code = model.CheckUserByName(data.Username)
 	if code == e.SUCCESS {
 		// 如果不存在 操作model层
-		model.EditUser(id, &data)
+		model.EditUser(int(data.ID), &data)
 		res.ResponseSuccess(ctx, data)
 	} else {
 		// 如果存在 返回错误
