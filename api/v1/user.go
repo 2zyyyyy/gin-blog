@@ -14,8 +14,7 @@ func AddUser(ctx *gin.Context) {
 	var data model.User
 	// 获取数据
 	_ = ctx.ShouldBindJSON(&data)
-	code := model.CheckUserByName(data.Username)
-	if code == e.SUCCESS {
+	if code := model.CheckUserByName(data.Username); code == e.SUCCESS {
 		// 调用model层数据操作
 		_ = model.CreateUser(&data)
 		res.ResponseSuccess(ctx, data)
@@ -32,9 +31,7 @@ func GetUser(ctx *gin.Context) {
 		log.Fatalf("ctx.Param failed, err:%s\n", err)
 	}
 	// 判断当前id的用户是否存在
-	code := model.CheckUserById(id)
-	// 存在 则返回对应的用户数据
-	if code == e.SUCCESS {
+	if code := model.CheckUserById(id); code == e.SUCCESS {
 		data := model.GetUser(id)
 		res.ResponseSuccess(ctx, data)
 	} else {
@@ -67,20 +64,14 @@ func EditUser(ctx *gin.Context) {
 		log.Fatalf("ShouldBindJSON failed, err:%s\n", err)
 	}
 	// 判断编辑的用户是否存在
-	code := model.CheckUpdateUser(id, data)
-	if code == e.ErrorUserNotExist {
-		// 如果传入的用户id不存在 返回错误
-		res.ResponseError(ctx, e.ErrorUserNotExist)
-		return
-	}
-	// 判断修改后的用户名是否存在
-	code = model.CheckUpdateUser(id, data)
-	if code == e.SUCCESS {
+	if code := model.CheckUpdateUser(id, data); code == e.SUCCESS {
 		// 如果不存在 操作model层
 		_ = model.EditUser(id, &data)
 		res.ResponseSuccess(ctx, data)
-	} else if code == e.ErrorUsernameUsed {
-		res.ResponseErrorWithMsg(ctx, code, e.ErrorUsernameUsed.GetMsg())
+	} else if code == e.ErrorUserNotExist {
+		// 如果传入的用户id不存在 返回错误
+		res.ResponseError(ctx, e.ErrorUserNotExist)
+		return
 	} else {
 		// 如果存在 返回错误
 		res.ResponseError(ctx, e.ErrorUsernameUsed)
@@ -92,12 +83,10 @@ func DeleteUser(ctx *gin.Context) {
 	// 获取需要删除的用户id
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	//判断当前id的用户是否存在
-	code := model.CheckUserById(id)
-	if code == e.SUCCESS {
+	if code := model.CheckUserById(id); code == e.SUCCESS {
 		// 调用model层的数据操作
 		code = model.DeleteUser(id)
 		res.ResponseSuccess(ctx, nil)
-
 	} else {
 		res.ResponseErrorWithMsg(ctx, code, e.ErrorUserNotExist.GetMsg())
 	}

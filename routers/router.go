@@ -40,8 +40,9 @@ func InitRouter() {
 		routerV1.PUT("article/:id", v1.EditArticle)      // 编辑文章
 		routerV1.DELETE("article/:id", v1.DeleteArticle) // 删除文章
 
-		routerV1.GET("article/id", v1.GetArticleDetail) // 获取文章详情
-		routerV1.GET("article/all", v1.GetArticleList)  // 查询全部文章
+		routerV1.GET("article/:id", v1.GetArticleDetail) // 获取文章详情
+		routerV1.GET("article/all", v1.GetArticleList)   // 查询全部文章
+		//routerV1.GET("article/search", v1.GetArticleList) // 根据标题搜索文章
 	}
 	// 启动
 	_ = r.Run(utils.App.HttpPort)

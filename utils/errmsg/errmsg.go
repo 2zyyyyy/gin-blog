@@ -20,8 +20,8 @@ const (
 	ErrorUserNoRight
 )
 
-// ErrorArtNotExist 文章相关错误
-const ErrorArtNotExist ResCode = 2001
+// ErrorArticleNotExist 文章相关错误
+const ErrorArticleNotExist ResCode = 2001
 
 // 分类相关错误
 const (
@@ -41,7 +41,7 @@ var codeMsg = map[ResCode]string{
 	ErrorTokenTypeWrong: "TOKEN格式错误,请重新登录",
 	ErrorUserNoRight:    "该用户无权限",
 
-	ErrorArtNotExist: "文章不存在",
+	ErrorArticleNotExist: "文章不存在",
 
 	ErrorCategoryNameUsed: "该分类已存在",
 	ErrorCategoryNotExist: "该分类不存在",

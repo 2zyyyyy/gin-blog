@@ -14,9 +14,7 @@ func AddCategory(ctx *gin.Context) {
 	var data model.Category
 	// 获取数据
 	_ = ctx.ShouldBindJSON(&data)
-	code := model.CheckCategoryByName(data.Name)
-	if code == e.SUCCESS {
-		// 调用model层数据操作
+	if code := model.CheckCategoryByName(data.Name); code == e.SUCCESS {
 		_ = model.CreateCategory(&data)
 		res.ResponseSuccess(ctx, data)
 	} else {
@@ -29,6 +27,7 @@ func GetCategoryArticles(ctx *gin.Context) {
 
 }
 
+// GetCategory 查询单个分类信息
 func GetCategory(ctx *gin.Context) {
 	// 获取查询分类的id
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -36,9 +35,7 @@ func GetCategory(ctx *gin.Context) {
 		log.Fatalf("ctx.Param failed, err:%s\n", err)
 	}
 	// 判断当前id的分类是否存在
-	code := model.CheckCategoryById(id)
-	// 存在 则返回对应的分类数据
-	if code == e.SUCCESS {
+	if code := model.CheckCategoryById(id); code == e.SUCCESS {
 		data := model.GetCategory(id)
 		res.ResponseSuccess(ctx, data)
 	} else {
@@ -53,7 +50,6 @@ func GetCategories(ctx *gin.Context) {
 	if err != nil {
 		log.Fatalf("分页数据获取失败, err:%s\n", err)
 	}
-	// 调用model层数据操作
 	data := model.GetCategories(pageSize, pageNum)
 	res.ResponseSuccess(ctx, data)
 }
@@ -72,20 +68,14 @@ func EditCategory(ctx *gin.Context) {
 		log.Fatalf("ShouldBindJSON failed, err:%s\n", err)
 	}
 	// 判断编辑的分类是否存在
-	code := model.CheckUpdateCategory(id, data)
-	if code == e.ErrorCategoryNotExist {
+	if code := model.CheckUpdateCategory(id, data); code == e.SUCCESS {
+		_ = model.EditCategory(id, &data)
+		res.ResponseSuccess(ctx, data)
+	} else if code == e.ErrorCategoryNotExist {
 		// 如果传入的分类id不存在 返回错误
 		res.ResponseError(ctx, e.ErrorCategoryNotExist)
 		return
-	}
-	// 判断修改后的分类名称是否存在
-	code = model.CheckUpdateCategory(id, data)
-	if code == e.SUCCESS {
-		// 如果不存在 操作model层
-		_ = model.EditCategory(id, &data)
-		res.ResponseSuccess(ctx, data)
 	} else {
-		// 如果存在 返回错误
 		res.ResponseError(ctx, e.ErrorCategoryNameUsed)
 	}
 }
@@ -95,12 +85,10 @@ func DeleteCategory(ctx *gin.Context) {
 	// 获取需要删除的分类id
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	//判断当前id的分类是否存在
-	code := model.CheckCategoryById(id)
-	if code == e.SUCCESS {
+	if code := model.CheckCategoryById(id); code == e.SUCCESS {
 		// 调用model层的数据操作
 		code = model.DeleteCategory(id)
 		res.ResponseSuccess(ctx, nil)
-
 	} else {
 		res.ResponseErrorWithMsg(ctx, code, e.ErrorCategoryNotExist.GetMsg())
 	}
