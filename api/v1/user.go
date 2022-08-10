@@ -17,17 +17,29 @@ func AddUser(ctx *gin.Context) {
 	code := model.CheckUserByName(data.Username)
 	if code == e.SUCCESS {
 		// 调用model层数据操作
-		model.CreateUser(&data)
+		_ = model.CreateUser(&data)
 		res.ResponseSuccess(ctx, data)
 	} else {
 		res.ResponseErrorWithMsg(ctx, code, e.ErrorUsernameUsed.GetMsg())
 	}
-
 }
 
 // GetUser 查询单个用户
 func GetUser(ctx *gin.Context) {
-
+	// 获取查询用户的id
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Fatalf("ctx.Param failed, err:%s\n", err)
+	}
+	// 判断当前id的用户是否存在
+	code := model.CheckUserById(id)
+	// 存在 则返回对应的用户数据
+	if code == e.SUCCESS {
+		data := model.GetUser(id)
+		res.ResponseSuccess(ctx, data)
+	} else {
+		res.ResponseErrorWithMsg(ctx, code, e.ErrorUserNotExist.GetMsg())
+	}
 }
 
 // GetUsers 查询用户列表
@@ -62,11 +74,13 @@ func EditUser(ctx *gin.Context) {
 		return
 	}
 	// 判断修改后的用户名是否存在
-	code = model.CheckUserByName(data.Username)
+	code = model.CheckUpdateUser(id, data)
 	if code == e.SUCCESS {
 		// 如果不存在 操作model层
-		model.EditUser(int(data.ID), &data)
+		_ = model.EditUser(id, &data)
 		res.ResponseSuccess(ctx, data)
+	} else if code == e.ErrorUsernameUsed {
+		res.ResponseErrorWithMsg(ctx, code, e.ErrorUsernameUsed.GetMsg())
 	} else {
 		// 如果存在 返回错误
 		res.ResponseError(ctx, e.ErrorUsernameUsed)

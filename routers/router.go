@@ -23,7 +23,7 @@ func InitRouter() {
 		routerV1.PUT("user/:id", v1.EditUser)      // 编辑用户
 		routerV1.DELETE("user/:id", v1.DeleteUser) // 删除用户
 
-		routerV1.GET("user:id", v1.GetUser)   // 根据id查询单个用户
+		routerV1.GET("user/:id", v1.GetUser)  // 根据id查询单个用户
 		routerV1.GET("user/all", v1.GetUsers) // 查询全部用户
 
 		// 分类相关
@@ -31,8 +31,9 @@ func InitRouter() {
 		routerV1.PUT("category/:id", v1.EditCategory)      // 编辑分类
 		routerV1.DELETE("category/:id", v1.DeleteCategory) // 删除文章
 
+		routerV1.GET("category/:id", v1.GetCategory)        // 根据id查询单个分类
+		routerV1.GET("category/all", v1.GetCategories)      // 查询全部分类
 		routerV1.GET("category/id", v1.GetCategoryArticles) // 查询分类下文章
-		routerV1.GET("category/all", v1.GetCategories)      // 查询全部文章
 
 		// 文章相关
 		routerV1.POST("article/add", v1.AddArticle)      // 添加文章

@@ -25,8 +25,8 @@ const ErrorArtNotExist ResCode = 2001
 
 // 分类相关错误
 const (
-	ErrorCateNameUsed ResCode = 3001 + iota
-	ErrorCateNotExist
+	ErrorCategoryNameUsed ResCode = 3001 + iota
+	ErrorCategoryNotExist
 )
 
 var codeMsg = map[ResCode]string{
@@ -43,8 +43,8 @@ var codeMsg = map[ResCode]string{
 
 	ErrorArtNotExist: "文章不存在",
 
-	ErrorCateNameUsed: "该分类已存在",
-	ErrorCateNotExist: "该分类不存在",
+	ErrorCategoryNameUsed: "该分类已存在",
+	ErrorCategoryNotExist: "该分类不存在",
 }
 
 // GetMsg 根据code返回对应的信息

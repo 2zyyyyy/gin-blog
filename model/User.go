@@ -23,7 +23,7 @@ type UserList struct {
 	CreatedAt string
 }
 
-// CheckUserByName 检查用户名是否存在
+// CheckUserByName 检查用户名是否存在（name）
 func CheckUserByName(name string) e.ResCode {
 	var user User
 	db.Select("id").Where("username = ?", name).First(&user)
@@ -33,7 +33,7 @@ func CheckUserByName(name string) e.ResCode {
 	return e.SUCCESS
 }
 
-// CheckUserById 检查用户是否存在
+// CheckUserById 检查用户是否存在（id）
 func CheckUserById(id int) e.ResCode {
 	var count int64
 	var user User
@@ -47,20 +47,23 @@ func CheckUserById(id int) e.ResCode {
 
 // CheckUpdateUser 更新用户信息 检查用户名是否存在
 func CheckUpdateUser(id int, user User) e.ResCode {
-	dataName := user.Username
+	var dbUser User
 	// 根据接口入参判断当前用户是否存在
-	db.Select("id, username").Where("id = ?", id).First(&user)
+	db.Where("id = ?", id).First(&dbUser)
 	// case1:如果用户已删除
-	if user.ID == 0 {
+	if dbUser.ID == 0 {
 		return e.ErrorUserNotExist
 	}
-	// case2：非当前用户 无法修改已存在的用户名
-	db.Select("id, username").Where("username = ?", user.Username).First(&user)
-	if dataName == user.Username && int(user.ID) != id {
+	dbUser = User{}
+	// case2：非当前用户 无法修改已存在的用户名（对比id和db中查询的id）
+	db.Where(&User{Username: user.Username}).Find(&dbUser)
+	if user.Username == dbUser.Username && id != int(dbUser.ID) {
+		log.Printf("user.username:%s db.username:%s user.id:%d db.id:%d", user.Username, dbUser.Username,
+			id, dbUser.ID)
 		return e.ErrorUsernameUsed
 	}
 	// case3：如果查询结果的id和当前修改用户的id相同 则放行
-	if id == int(user.ID) {
+	if id == int(dbUser.ID) {
 		return e.SUCCESS
 	}
 	return e.SUCCESS
@@ -75,6 +78,17 @@ func CreateUser(data *User) e.ResCode {
 		return e.ERROR
 	}
 	return e.SUCCESS
+}
+
+// GetUser 查询单个用户
+func GetUser(id int) UserList {
+	var user UserList
+	// 用主键检索
+	err := db.Table("user").First(&user, id).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return UserList{}
+	}
+	return user
 }
 
 // GetUsers 查询用户列表
