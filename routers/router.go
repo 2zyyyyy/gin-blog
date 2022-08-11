@@ -31,17 +31,17 @@ func InitRouter() {
 		routerV1.PUT("category/:id", v1.EditCategory)      // 编辑分类
 		routerV1.DELETE("category/:id", v1.DeleteCategory) // 删除文章
 
-		routerV1.GET("category/:id", v1.GetCategory)        // 根据id查询单个分类
-		routerV1.GET("category/all", v1.GetCategories)      // 查询全部分类
-		routerV1.GET("category/id", v1.GetCategoryArticles) // 查询分类下文章
+		routerV1.GET("category/:id", v1.GetCategory)   // 根据id查询单个分类
+		routerV1.GET("category/all", v1.GetCategories) // 查询全部分类
 
 		// 文章相关
 		routerV1.POST("article/add", v1.AddArticle)      // 添加文章
 		routerV1.PUT("article/:id", v1.EditArticle)      // 编辑文章
 		routerV1.DELETE("article/:id", v1.DeleteArticle) // 删除文章
 
-		routerV1.GET("article/:id", v1.GetArticleDetail) // 获取文章详情
-		routerV1.GET("article/all", v1.GetArticleList)   // 查询全部文章
+		routerV1.GET("article/:id", v1.GetArticleDetail)               // 获取文章详情
+		routerV1.GET("article/all", v1.GetArticleList)                 // 查询全部文章
+		routerV1.GET("article/category/:id", v1.GetArticlesByCategory) // 根据分类查询文章
 		//routerV1.GET("article/search", v1.GetArticleList) // 根据标题搜索文章
 	}
 	// 启动

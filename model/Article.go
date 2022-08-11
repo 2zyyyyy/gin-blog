@@ -7,6 +7,7 @@ import (
 )
 
 type Article struct {
+	// 物理外键
 	Category Category `gorm:"foreignkey:Cid"`
 	gorm.Model
 	Title        string `gorm:"type:varchar(100);not null" json:"title"`
@@ -29,7 +30,7 @@ func CheckArticleById(id int) e.ResCode {
 	return e.SUCCESS
 }
 
-// CreateArticle 新增分文章
+// CreateArticle 新增文章
 func CreateArticle(data *Article) e.ResCode {
 	err := db.Create(&data).Error
 	if err != nil {
@@ -42,7 +43,7 @@ func CreateArticle(data *Article) e.ResCode {
 func GetArticleDetail(id int) Article {
 	var article Article
 	// 用主键检索
-	err := db.Table("article").First(&article, id).Error
+	err := db.Preload("Category").Table("article").First(&article, id).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return Article{}
 	}
@@ -50,14 +51,26 @@ func GetArticleDetail(id int) Article {
 }
 
 // GetArticles 查询文章列表
-func GetArticles(pageSize, pageNum int) []Article {
+func GetArticles(pageSize, pageNum int) ([]Article, e.ResCode) {
 	var articles []Article
-	db.Table("article").Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&articles)
+	err := db.Preload("Category").Table("article").Limit(pageSize).
+		Offset((pageNum - 1) * pageSize).Find(&articles).Error
 	log.Println(articles)
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil
+		return nil, e.ErrorArticleNotExist
 	}
-	return articles
+	return articles, e.SUCCESS
+}
+
+// GetArticlesByCategory 根据分类查询对应文章列表
+func GetArticlesByCategory(id, pageSize, pageNum int) ([]Article, e.ResCode) {
+	var articles []Article
+	err := db.Preload("Category").Table("article").Where("cid = ?", id).Limit(pageSize).
+		Offset((pageNum - 1) * pageSize).Find(&articles).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, e.ErrorArticleNotExist
+	}
+	return articles, e.SUCCESS
 }
 
 // EditArticle 编辑分类
@@ -70,7 +83,7 @@ func EditArticle(id int, article *Article) e.ResCode {
 	maps["content"] = article.Content
 	maps["img"] = article.Img
 
-	err := db.Model(article).Where("id = ?", id).Updates(&maps).Error
+	err := db.Preload("Category").Model(article).Where("id = ?", id).Updates(&maps).Error
 	if err != nil {
 		return e.ERROR
 	}

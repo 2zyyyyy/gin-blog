@@ -15,7 +15,7 @@ func AddArticle(ctx *gin.Context) {
 	// 获取数据
 	_ = ctx.ShouldBindJSON(&data)
 	if code := model.CreateArticle(&data); code == e.SUCCESS {
-		res.ResponseSuccess(ctx, data)
+		res.ResponseSuccess(ctx, nil)
 	} else {
 		res.ResponseError(ctx, code)
 	}
@@ -45,8 +45,34 @@ func GetArticleList(ctx *gin.Context) {
 		log.Fatalf("分页数据获取失败, err:%s\n", err)
 	}
 	// 调用model层数据操作
-	data := model.GetArticles(pageSize, pageNum)
-	res.ResponseSuccess(ctx, data)
+	data, code := model.GetArticles(pageSize, pageNum)
+	if code == e.SUCCESS {
+		res.ResponseSuccess(ctx, data)
+	} else {
+		res.ResponseError(ctx, code)
+	}
+
+}
+
+// GetArticlesByCategory 根据分类查询对应文章列表
+func GetArticlesByCategory(ctx *gin.Context) {
+	// 获取分类id
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Fatalf("ctx.Param failed, err:%s\n", err)
+	}
+	// 获取分页
+	pageSize, pageNum, err := res.PageInfo(ctx)
+	if err != nil {
+		log.Fatalf("分页数据获取失败, err:%s\n", err)
+	}
+	// 调用model层查询数据
+	data, code := model.GetArticlesByCategory(id, pageSize, pageNum)
+	if code == e.SUCCESS {
+		res.ResponseSuccess(ctx, data)
+	} else {
+		res.ResponseError(ctx, code)
+	}
 }
 
 // EditArticle 编辑文章

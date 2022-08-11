@@ -16,15 +16,10 @@ func AddCategory(ctx *gin.Context) {
 	_ = ctx.ShouldBindJSON(&data)
 	if code := model.CheckCategoryByName(data.Name); code == e.SUCCESS {
 		_ = model.CreateCategory(&data)
-		res.ResponseSuccess(ctx, data)
+		res.ResponseSuccess(ctx, nil)
 	} else {
 		res.ResponseErrorWithMsg(ctx, code, e.ErrorCategoryNameUsed.GetMsg())
 	}
-}
-
-// GetCategoryArticles 查询分类下文章
-func GetCategoryArticles(ctx *gin.Context) {
-
 }
 
 // GetCategory 查询单个分类信息

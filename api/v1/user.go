@@ -17,7 +17,7 @@ func AddUser(ctx *gin.Context) {
 	if code := model.CheckUserByName(data.Username); code == e.SUCCESS {
 		// 调用model层数据操作
 		_ = model.CreateUser(&data)
-		res.ResponseSuccess(ctx, data)
+		res.ResponseSuccess(ctx, nil)
 	} else {
 		res.ResponseErrorWithMsg(ctx, code, e.ErrorUsernameUsed.GetMsg())
 	}
