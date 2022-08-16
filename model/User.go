@@ -23,6 +23,24 @@ type UserList struct {
 	CreatedAt string
 }
 
+// LoginCheck 登录判断
+func LoginCheck(username, password string) e.ResCode {
+	var user User
+	db.Where("username = ?", username).First(&user)
+	if user.ID == 0 {
+		return e.ErrorUserNotExist
+	}
+	if ScryptPassword(password) != user.Password {
+		log.Printf("data.password:%s, data.scrypt:%s, db.password:%s\n",
+			password, ScryptPassword(password), user.Password)
+		return e.ErrorPasswordWrong
+	}
+	if user.Role != 0 {
+		return e.ErrorUserNoRight
+	}
+	return e.SUCCESS
+}
+
 // CheckUserByName 检查用户名是否存在（name）
 func CheckUserByName(name string) e.ResCode {
 	var user User

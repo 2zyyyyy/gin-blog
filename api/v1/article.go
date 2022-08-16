@@ -66,6 +66,12 @@ func GetArticlesByCategory(ctx *gin.Context) {
 	if err != nil {
 		log.Fatalf("分页数据获取失败, err:%s\n", err)
 	}
+	// 判断id对应的分类是否存在
+	if code := model.CheckCategoryById(id); code == e.ErrorCategoryNotExist {
+		// 不存在 return
+		res.ResponseErrorWithMsg(ctx, code, e.ErrorCategoryNotExist.GetMsg())
+		return
+	}
 	// 调用model层查询数据
 	data, code := model.GetArticlesByCategory(id, pageSize, pageNum)
 	if code == e.SUCCESS {
@@ -90,7 +96,7 @@ func EditArticle(ctx *gin.Context) {
 	// 判断编辑的文章是否存在
 	if code := model.CheckArticleById(id); code == e.SUCCESS {
 		_ = model.EditArticle(id, &data)
-		res.ResponseSuccess(ctx, data)
+		res.ResponseSuccess(ctx, nil)
 	} else if code == e.ErrorArticleNotExist {
 		// 如果传入的文章id不存在 返回错误
 		res.ResponseError(ctx, e.ErrorArticleNotExist)

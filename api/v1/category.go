@@ -65,7 +65,7 @@ func EditCategory(ctx *gin.Context) {
 	// 判断编辑的分类是否存在
 	if code := model.CheckUpdateCategory(id, data); code == e.SUCCESS {
 		_ = model.EditCategory(id, &data)
-		res.ResponseSuccess(ctx, data)
+		res.ResponseSuccess(ctx, nil)
 	} else if code == e.ErrorCategoryNotExist {
 		// 如果传入的分类id不存在 返回错误
 		res.ResponseError(ctx, e.ErrorCategoryNotExist)

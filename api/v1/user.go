@@ -13,7 +13,13 @@ import (
 func AddUser(ctx *gin.Context) {
 	var data model.User
 	// 获取数据
-	_ = ctx.ShouldBindJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
+	if err != nil {
+		if err != nil {
+			res.ResponseError(ctx, e.ERROR)
+			return
+		}
+	}
 	if code := model.CheckUserByName(data.Username); code == e.SUCCESS {
 		// 调用model层数据操作
 		_ = model.CreateUser(&data)
@@ -67,7 +73,7 @@ func EditUser(ctx *gin.Context) {
 	if code := model.CheckUpdateUser(id, data); code == e.SUCCESS {
 		// 如果不存在 操作model层
 		_ = model.EditUser(id, &data)
-		res.ResponseSuccess(ctx, data)
+		res.ResponseSuccess(ctx, nil)
 	} else if code == e.ErrorUserNotExist {
 		// 如果传入的用户id不存在 返回错误
 		res.ResponseError(ctx, e.ErrorUserNotExist)
