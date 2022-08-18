@@ -14,6 +14,7 @@ func AddUser(ctx *gin.Context) {
 	var data model.User
 	// 获取数据
 	err := ctx.ShouldBindJSON(&data)
+	log.Printf("data.role:%d\n", data.Role)
 	if err != nil {
 		if err != nil {
 			res.ResponseError(ctx, e.ERROR)

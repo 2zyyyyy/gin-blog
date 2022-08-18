@@ -26,9 +26,18 @@ type Jwt struct {
 	BufferTime  int64
 }
 
+// QiNiuYun 七牛云配置结构体
+type QiNiuYun struct {
+	AccessKey    string
+	SecretKey    string
+	Bucket       string
+	QiuNiuServer string
+}
+
 // App 定义全局变量
 var App AppConfig
 var JWT Jwt
+var QiNiu QiNiuYun
 
 func init() {
 	file, err := ini.Load("config/config.ini")
@@ -54,8 +63,14 @@ func LoadData(file *ini.File) {
 	App.Other = file.Section("database").Key("Other").MustString("")
 
 	// 获取jwt参数
-	JWT.SigningKey = file.Section("jwt").Key("signing-key").MustString("8jhs7H9n")
-	JWT.ExpiresTime = file.Section("jwt").Key("expires-time").MustInt64(604800)
-	JWT.BufferTime = file.Section("jwt").Key("buffer-time").MustInt64(86400)
-	JWT.Issuer = file.Section("jwt").Key("issuer").MustString("miles")
+	JWT.SigningKey = file.Section("jwt").Key("SigningKey").MustString("8jhs7H9n")
+	JWT.ExpiresTime = file.Section("jwt").Key("ExpiresTime").MustInt64(604800)
+	JWT.BufferTime = file.Section("jwt").Key("BufferTime").MustInt64(86400)
+	JWT.Issuer = file.Section("jwt").Key("Issuer").MustString("miles")
+
+	// 获取七牛云配置参数
+	QiNiu.AccessKey = file.Section("qiniu").Key("AccessKey").MustString("")
+	QiNiu.SecretKey = file.Section("qiniu").Key("SecretKey").MustString("")
+	QiNiu.Bucket = file.Section("qiniu").Key("Bucket").MustString("go-blog-img")
+	QiNiu.QiuNiuServer = file.Section("qiniu").Key("QiuNiuServer").MustString("")
 }

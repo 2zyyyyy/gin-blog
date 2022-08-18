@@ -1,15 +1,16 @@
 package middleware
 
 import (
-	res "gin-blog/utils"
+	"gin-blog/utils"
 	e "gin-blog/utils/errmsg"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"log"
 	"strings"
 	"time"
 )
 
-var JwtKey = []byte(res.JWT.SigningKey)
+var JwtKey = []byte(utils.JWT.SigningKey)
 
 const (
 	AuthorizationKey = "Authorization"
@@ -26,12 +27,12 @@ type MyClaims struct {
 
 // SetToken 生成token
 func SetToken(username string) (string, e.ResCode) {
-	expireTime := res.JWT.ExpiresTime
+	expireTime := utils.JWT.ExpiresTime
 	SetClaims := MyClaims{
 		Username: username,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime,
-			Issuer:    res.JWT.Issuer,
+			Issuer:    utils.JWT.Issuer,
 		},
 	}
 	reqClaim := jwt.NewWithClaims(jwt.SigningMethodHS256, SetClaims)
@@ -61,27 +62,29 @@ func JwtMiddleware() gin.HandlerFunc {
 		tokenHeader := ctx.Request.Header.Get(AuthorizationKey)
 		if tokenHeader == Null {
 			code = e.ErrorTokenExist
-			res.ResponseErrorWithMsg(ctx, code, code.GetMsg())
+			utils.ResponseErrorWithMsg(ctx, code, code.GetMsg())
 			ctx.Abort()
 			return
 		}
-		checkToken := strings.SplitN(tokenHeader, SpaceKey, Num)
-		if len(checkToken) != 2 && checkToken[0] != BearerKey {
+		resToken := strings.SplitN(tokenHeader, SpaceKey, Num)
+		log.Printf("resToken:%v\n", resToken)
+		if len(resToken) != 2 && resToken[0] != BearerKey {
 			code = e.ErrorTokenTypeWrong
-			res.ResponseErrorWithMsg(ctx, code, code.GetMsg())
+			utils.ResponseErrorWithMsg(ctx, code, code.GetMsg())
 			ctx.Abort()
 			return
 		}
-		key, checkCode := CheckToken(checkToken[1])
+		key, checkCode := CheckToken(resToken[1])
+		log.Printf("key:%v, code:%d\n", key, checkCode)
 		if checkCode == e.ERROR {
 			code = e.ErrorTokenWrong
-			res.ResponseErrorWithMsg(ctx, code, code.GetMsg())
+			utils.ResponseErrorWithMsg(ctx, code, code.GetMsg())
 			ctx.Abort()
 			return
 		}
 		if time.Now().Unix() > key.ExpiresAt {
 			code = e.ErrorTokenRuntime
-			res.ResponseErrorWithMsg(ctx, code, code.GetMsg())
+			utils.ResponseErrorWithMsg(ctx, code, code.GetMsg())
 			ctx.Abort()
 			return
 		}

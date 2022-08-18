@@ -30,6 +30,8 @@ func InitRouter() {
 		auth.PUT("article/:id", v1.EditArticle)      // 编辑文章
 		auth.DELETE("article/:id", v1.DeleteArticle) // 删除文章
 
+		// file upload
+		auth.POST("file/upload", v1.Upload) // 文件上传
 	}
 	// 无需token鉴权
 	routerV1 := r.Group("api/v1")
